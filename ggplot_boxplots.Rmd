@@ -1,0 +1,101 @@
+---
+title: "ggplot2 boxplots"
+author: "Wendy Phillips"
+date: "2023-03-11"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+One of the most used and most useful plotting methods is the boxplot. It provides a simple representation of the distribution of numerical data, either of a single group or multiple groups. Here, I will demonstrate how to make boxplots with *ggplot2*.
+
+
+
+To begin, we load the ggplot library.
+```{r}
+library(ggplot2)
+```
+
+We will use one of the datasets that are available with the base R package *datasets*. This dataset has results from an experiment assessing the ability of eight different components of orchard sprays to repel honeybees. To find out more information about the dataset, type a `?` followed by the name of the dataset. In this case: `?OrchardSprays`. If you want to find out what other datasets are already available to you as a part of your currently installed packages, you can use the command `data()`.
+
+To explicitly load the dataset into your environment, type this.
+```{r}
+data("OrchardSprays")
+```
+
+There are various ways to quickly explore the data set. Here are a couple.
+```{r}
+head(OrchardSprays)
+```
+
+```{r}
+summary(OrchardSprays)
+```
+
+Before trying out the ggplot method, let's look at how a boxplot looks using the base R *graphics* `boxplot()` command.
+```{r}
+boxplot(decrease ~ treatment, data = OrchardSprays)
+```
+That actually looks pretty good. And there are a variety of arguments we could use to customize the look of it. To find out more about those options, ask for help on the boxplot function with the command: `?boxplot`.  
+
+Now, let's compare that to the most basic boxplot of the same data using ggplot2. We use the basic format for ggplot calls, in which we begin by telling ggplot the dataset to use followed by what columns of the dataset to use for the basic aesthetic (`aes`) parameters. In the case of the boxplot, we need to assign the continuous response variable (`decrease`) to the y-axis and the categorical variable (`treatment`) to the x-axis. With the `ggplot(OrchardSprays, aes(x = treatment, y = decrease))` command, we will have initiated a ggplot object. However, with just that information alone, ggplot does not know what we want to do with that data and so just creates an empty plot that has the indicated x and y axes.
+```{r}
+ggplot(OrchardSprays, aes(x = treatment, y = decrease))
+```
+
+We must add the command `+ geom_boxplot()` to actually add a boxplot to the plotting object.
+```{r}
+ggplot(OrchardSprays, aes(x = treatment, y = decrease)) +
+      geom_boxplot()
+```
+
+We make the plot more visually appealing by adding to the initial aesthetic parameters that we would like a different color for each treatment.
+```{r}
+ggplot(OrchardSprays, aes(x = treatment, y = decrease, color = treatment)) +
+      geom_boxplot()
+```
+
+We can add points on top of the boxplot to show each individual value of all data points.
+```{r}
+ggplot(OrchardSprays, aes(x = treatment, y = decrease, color = treatment)) +
+      geom_boxplot() +
+      geom_point()
+```
+
+I'm not the biggest fan of the default theme of ggplot. The easiest way to change the overall theme is to use one of the other in-built ggplot themes.
+```{r}
+ggplot(OrchardSprays, aes(x = treatment, y = decrease, color = treatment)) +
+      geom_boxplot() +
+      geom_point() +
+      theme_classic()
+```
+
+Some of the points are overlapping each other. One way to separate them from each other is to offset them from the center by declaring their position to be set with jitter (`position = position_jitter()`. The default for `position_jitter` is to jitter both the width and the height. However, we don't want to jitter the height in this case, as that would portray incorrect values for the decrease, so we set a parameter of `height = 0`.
+```{r}
+ggplot(OrchardSprays, aes(x = treatment, y = decrease, color = treatment)) +
+      geom_boxplot() +
+      geom_point(position = position_jitter(height = 0)) +
+      theme_classic()
+```
+
+You might notice that there are now two points side by side for outlier values now. One of those points is from the `geom_boxplot` call, and one is from the `geom_point` call. Before we didn't notice they were both being plotted because they were on top of each other. Now that we have jittered the `geom_point` point, we see both it and the point that  In order to make sure this doesn't happen, we need to explicitly direct ggplot to not include the outlier points when plotting the boxplots
+
+```{r}
+ggplot(OrchardSprays, aes(x = treatment, y = decrease, color = treatment)) +
+      geom_boxplot(outlier.colour = NA) +
+      geom_point(position = position_jitter(height = 0)) +
+      theme_classic()
+```
+
+
+Next, let's change the axis labels so that they are capitalized.
+```{r}
+ggplot(OrchardSprays, aes(x = treatment, y = decrease, color = treatment)) +
+      geom_boxplot(outlier.colour = NA) +
+      geom_point(position = position_jitter(height = 0)) +
+      theme_classic() +
+      labs(x = "Treatment", y = "Decrease")
+```
+
