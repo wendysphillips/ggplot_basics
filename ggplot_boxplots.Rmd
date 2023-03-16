@@ -48,54 +48,99 @@ ggplot(OrchardSprays, aes(x = treatment, y = decrease))
 We must add the command `+ geom_boxplot()` to actually add a boxplot to the plotting object.
 ```{r}
 ggplot(OrchardSprays, aes(x = treatment, y = decrease)) +
-      geom_boxplot()
+  geom_boxplot()
 ```
 
 We make the plot more visually appealing by adding to the initial aesthetic parameters that we would like a different color for each treatment.
 ```{r}
 ggplot(OrchardSprays, aes(x = treatment, y = decrease, color = treatment)) +
-      geom_boxplot()
+  geom_boxplot()
 ```
 
 We can add points on top of the boxplot to show each individual value of all data points.
 ```{r}
 ggplot(OrchardSprays, aes(x = treatment, y = decrease, color = treatment)) +
-      geom_boxplot() +
-      geom_point()
+  geom_boxplot() +
+  geom_point()
 ```
 
 I'm not the biggest fan of the default theme of ggplot. The easiest way to change the overall theme is to use one of the other in-built ggplot themes.
 ```{r}
 ggplot(OrchardSprays, aes(x = treatment, y = decrease, color = treatment)) +
-      geom_boxplot() +
-      geom_point() +
-      theme_classic()
+  geom_boxplot() +
+  geom_point() +
+  theme_classic()
 ```
 
 Some of the points are overlapping each other. One way to separate them from each other is to offset them from the center by declaring their position to be set with jitter (`position = position_jitter()`. The default for `position_jitter` is to jitter both the width and the height. However, we don't want to jitter the height in this case, as that would portray incorrect values for the decrease, so we set a parameter of `height = 0`.
 ```{r}
 ggplot(OrchardSprays, aes(x = treatment, y = decrease, color = treatment)) +
-      geom_boxplot() +
-      geom_point(position = position_jitter(height = 0)) +
-      theme_classic()
+  geom_boxplot() +
+  geom_point(position = position_jitter(height = 0)) +
+  theme_classic()
 ```
 
 You might notice that there are now two points side by side for outlier values now. One of those points is from the `geom_boxplot` call, and one is from the `geom_point` call. Before we didn't notice they were both being plotted because they were on top of each other. Now that we have jittered the `geom_point` point, we see both it and the point that  In order to make sure this doesn't happen, we need to explicitly direct ggplot to not include the outlier points when plotting the boxplots
 
 ```{r}
 ggplot(OrchardSprays, aes(x = treatment, y = decrease, color = treatment)) +
-      geom_boxplot(outlier.colour = NA) +
-      geom_point(position = position_jitter(height = 0)) +
-      theme_classic()
+  geom_boxplot(outlier.colour = NA) +
+  geom_point(position = position_jitter(height = 0)) +
+  theme_classic()
 ```
-
+I think the horizontal jitter on the points is too much as they go all the way to the edge of the boxes. So, I will set it to be a little less.
+```{r}
+ggplot(OrchardSprays, aes(x = treatment, y = decrease, color = treatment)) +
+  geom_boxplot(outlier.colour = NA) +
+  geom_point(position = position_jitter(height = 0, width = 0.2)) +
+  theme_classic()
+```
+Let's say I want to make the points bigger. But then I'm worried that they will overlap each other and be less discernible. So, I will change their transparency, or alpha value.
+```{r}
+ggplot(OrchardSprays, aes(x = treatment, y = decrease, color = treatment)) +
+  geom_boxplot(outlier.colour = NA) +
+  geom_point(position = position_jitter(height = 0, width = 0.2), size = 2, alpha = 0.6) +
+  theme_classic()
+```
 
 Next, let's change the axis labels so that they are capitalized.
 ```{r}
 ggplot(OrchardSprays, aes(x = treatment, y = decrease, color = treatment)) +
-      geom_boxplot(outlier.colour = NA) +
-      geom_point(position = position_jitter(height = 0)) +
-      theme_classic() +
-      labs(x = "Treatment", y = "Decrease")
+  geom_boxplot(outlier.colour = NA) +
+  geom_point(position = position_jitter(height = 0, width = 0.2), size = 2, alpha = 0.6) +
+  theme_classic() +
+  labs(x = "Treatment", y = "Decrease")
 ```
 
+Adding a color aesthetic for the treatment group causes a legend for that aesthetic to appear. In this case, a legend isn't necessary because the same information is shown on the x-axis. So, we can remove the legend to make it less busy. To do that, we bring in a new ggplot element: the theme function. There are many, many ways to change aspects of the plot using the theme function.
+```{r}
+ggplot(OrchardSprays, aes(x = treatment, y = decrease, color = treatment)) +
+  geom_boxplot(outlier.colour = NA) +
+  geom_point(position = position_jitter(height = 0, width = 0.2), size = 2, alpha = 0.6) +
+  theme_classic() +
+  labs(x = "Treatment", y = "Decrease") +
+  theme(legend.position = "none")
+```
+One of the most common and basic changes to the plot we can apply through the themes function are font characteristics. Just as an example, we can make the axis titles bigger.
+
+```{r}
+ggplot(OrchardSprays, aes(x = treatment, y = decrease, color = treatment)) +
+  geom_boxplot(outlier.colour = NA) +
+  geom_point(position = position_jitter(height = 0, width = 0.2), size = 2, alpha = 0.6) +
+  theme_classic() +
+  labs(x = "Treatment", y = "Decrease") +
+  theme(legend.position = "none",
+        axis.title = element_text(size = 16))
+```
+
+Or make the axis titles bigger and the axis labels bigger.
+```{r}
+ggplot(OrchardSprays, aes(x = treatment, y = decrease, color = treatment)) +
+  geom_boxplot(outlier.colour = NA) +
+  geom_point(position = position_jitter(height = 0, width = 0.2), size = 2, alpha = 0.6) +
+  theme_classic() +
+  labs(x = "Treatment", y = "Decrease") +
+  theme(legend.position = "none",
+        axis.title = element_text(size = 16),
+        axis.text = element_text(size = 14))
+```
