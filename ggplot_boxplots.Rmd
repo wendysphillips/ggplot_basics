@@ -6,7 +6,7 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, fig.align = "center")
 ```
 
 One of the most used and most useful plotting methods is the boxplot. It provides a simple representation of the distribution of numerical data, either of a single group or multiple groups. Here, I will demonstrate how to make boxplots with *ggplot2*.
@@ -50,21 +50,21 @@ We must add the command `+ geom_boxplot()` to actually add a boxplot to the plot
 ggplot(OrchardSprays, aes(x = treatment, y = decrease)) +
   geom_boxplot()
 ```
-
-We make the plot more visually appealing by adding to the initial aesthetic parameters that we would like a different color for each treatment.
+As you can see, the default theme of ggplot uses a grey background panel with white grid lines. What to do if you don't like that style? The easiest way to change the overall theme is to use one of the other in-built ggplot themes, such as theme_classic used below specified by `theme_classic()`. 
 ```{r}
-ggplot(OrchardSprays, aes(x = treatment, y = decrease, color = treatment)) +
-  geom_boxplot()
+ggplot(OrchardSprays, aes(x = treatment, y = decrease)) +
+  geom_boxplot() +
+  theme_classic()
 ```
 
-We can add points on top of the boxplot to show each individual value of all data points.
+We make the plot more visually appealing by adding to the initial aesthetic parameters that we would like a different color for each treatment using `color = treatment`.
 ```{r}
 ggplot(OrchardSprays, aes(x = treatment, y = decrease, color = treatment)) +
   geom_boxplot() +
-  geom_point()
+  theme_classic()
 ```
 
-I'm not the biggest fan of the default theme of ggplot. The easiest way to change the overall theme is to use one of the other in-built ggplot themes.
+We can add points on top of the boxplot to show each individual value of all data points with `geom_point()`.
 ```{r}
 ggplot(OrchardSprays, aes(x = treatment, y = decrease, color = treatment)) +
   geom_boxplot() +
@@ -72,7 +72,7 @@ ggplot(OrchardSprays, aes(x = treatment, y = decrease, color = treatment)) +
   theme_classic()
 ```
 
-Some of the points are overlapping each other. One way to separate them from each other is to offset them from the center by declaring their position to be set with jitter (`position = position_jitter()`. The default for `position_jitter` is to jitter both the width and the height. However, we don't want to jitter the height in this case, as that would portray incorrect values for the decrease, so we set a parameter of `height = 0`.
+Some of the points are overlapping each other. One way to separate them from each other is to offset them from the center by declaring their position to be set with jitter (`position = position_jitter()`. The default for `position_jitter` is to jitter both the width and the height. However, we don't want to jitter the height in this case, as that would portray incorrect decrease values on the y-axis, so we set a parameter of `height = 0`.
 ```{r}
 ggplot(OrchardSprays, aes(x = treatment, y = decrease, color = treatment)) +
   geom_boxplot() +
@@ -80,7 +80,7 @@ ggplot(OrchardSprays, aes(x = treatment, y = decrease, color = treatment)) +
   theme_classic()
 ```
 
-You might notice that there are now two points side by side for outlier values now. One of those points is from the `geom_boxplot` call, and one is from the `geom_point` call. Before we didn't notice they were both being plotted because they were on top of each other. Now that we have jittered the `geom_point` point, we see both it and the point that  In order to make sure this doesn't happen, we need to explicitly direct ggplot to not include the outlier points when plotting the boxplots
+You might notice that there are now two points side by side for outlier values now. One of those points is from the `geom_boxplot` call, and one is from the `geom_point` call. Before we didn't notice they were both being plotted because they were on top of each other. Now that we have jittered the `geom_point` point, we see both it and the point that  In order to make sure this doesn't happen, we need to explicitly direct ggplot to not include the outlier points when plotting the boxplots using `outlier.colour = NA`.
 
 ```{r}
 ggplot(OrchardSprays, aes(x = treatment, y = decrease, color = treatment)) +
@@ -88,14 +88,16 @@ ggplot(OrchardSprays, aes(x = treatment, y = decrease, color = treatment)) +
   geom_point(position = position_jitter(height = 0)) +
   theme_classic()
 ```
-I think the horizontal jitter on the points is too much as they go all the way to the edge of the boxes. So, I will set it to be a little less.
+
+I think the horizontal jitter on the points is too much as they go all the way to the edge of the boxes. So, I will set it to be a little less using `width = 0.2`.
 ```{r}
 ggplot(OrchardSprays, aes(x = treatment, y = decrease, color = treatment)) +
   geom_boxplot(outlier.colour = NA) +
   geom_point(position = position_jitter(height = 0, width = 0.2)) +
   theme_classic()
 ```
-Let's say I want to make the points bigger. But then I'm worried that they will overlap each other and be less discernible. So, I will change their transparency, or alpha value.
+
+Let's say I want to make the points bigger. That can be done by adding a size parameter (`size = 2`). But then I'm worried that they will overlap each other and be less discernible. So, I will change their transparency, by declaring an alpha value (between 0 and 1), such as `alpha = 0.6`.
 ```{r}
 ggplot(OrchardSprays, aes(x = treatment, y = decrease, color = treatment)) +
   geom_boxplot(outlier.colour = NA) +
@@ -103,44 +105,108 @@ ggplot(OrchardSprays, aes(x = treatment, y = decrease, color = treatment)) +
   theme_classic()
 ```
 
-Next, let's change the axis labels so that they are capitalized.
+Next, let's change the axis labels so that they are capitalized by specifying `labs()` terms.
 ```{r}
 ggplot(OrchardSprays, aes(x = treatment, y = decrease, color = treatment)) +
   geom_boxplot(outlier.colour = NA) +
   geom_point(position = position_jitter(height = 0, width = 0.2), size = 2, alpha = 0.6) +
   theme_classic() +
-  labs(x = "Treatment", y = "Decrease")
+  labs(x = "Treatment", y = "Decrease (%)")
 ```
 
-Adding a color aesthetic for the treatment group causes a legend for that aesthetic to appear. In this case, a legend isn't necessary because the same information is shown on the x-axis. So, we can remove the legend to make it less busy. To do that, we bring in a new ggplot element: the theme function. There are many, many ways to change aspects of the plot using the theme function.
+Adding a color aesthetic for the treatment group causes a legend for that aesthetic to appear. In this case, a legend isn't necessary because the same information is shown on the x-axis. So, we can remove the legend to make it less busy. To do that, we bring in a new ggplot element: the theme function. In this case, we specify `theme(legend.position = "none")`. There are many, many ways to change aspects of the plot using the theme function. I'll show just a few of them below.
 ```{r}
 ggplot(OrchardSprays, aes(x = treatment, y = decrease, color = treatment)) +
   geom_boxplot(outlier.colour = NA) +
   geom_point(position = position_jitter(height = 0, width = 0.2), size = 2, alpha = 0.6) +
   theme_classic() +
-  labs(x = "Treatment", y = "Decrease") +
+  labs(x = "Treatment", y = "Decrease (%)") +
   theme(legend.position = "none")
 ```
-One of the most common and basic changes to the plot we can apply through the themes function are font characteristics. Just as an example, we can make the axis titles bigger.
 
+The legend.position theme used above took the value "none" as an argument. Other themes need to be assigned an element. There are four common elements: `element_text()`, `element_line()`, `element_rect()`, and `element_blank()`. (See https://ggplot2.tidyverse.org/reference/element.html) It is fairly self explanatory what type of elements the first three will add. The last one, element_blank(), is used to remove unwanted elements there by default. 
+
+One of the most common and basic changes to the plot we can apply through the theme function are font characteristics. Just as an example, we can make the axis titles bigger using `axis.title = element_text(size = 16)` .
 ```{r}
 ggplot(OrchardSprays, aes(x = treatment, y = decrease, color = treatment)) +
   geom_boxplot(outlier.colour = NA) +
   geom_point(position = position_jitter(height = 0, width = 0.2), size = 2, alpha = 0.6) +
   theme_classic() +
-  labs(x = "Treatment", y = "Decrease") +
+  labs(x = "Treatment", y = "Decrease (%)") +
   theme(legend.position = "none",
         axis.title = element_text(size = 16))
 ```
 
-Or make the axis titles bigger and the axis labels bigger.
+Or make the axis titles bigger and the axis labels bigger with `axis.title = element_text(size = 16)` and `axis.text = element_text(size = 14)`.
 ```{r}
 ggplot(OrchardSprays, aes(x = treatment, y = decrease, color = treatment)) +
   geom_boxplot(outlier.colour = NA) +
   geom_point(position = position_jitter(height = 0, width = 0.2), size = 2, alpha = 0.6) +
   theme_classic() +
-  labs(x = "Treatment", y = "Decrease") +
+  labs(x = "Treatment", y = "Decrease (%)") +
   theme(legend.position = "none",
         axis.title = element_text(size = 16),
         axis.text = element_text(size = 14))
 ```
+
+As you can see, theme_classic() does not include any grid lines. We can add y-axis lines to the plot with a theme addition `panel.grid.major.y = element_line()`.
+```{r}
+ggplot(OrchardSprays, aes(x = treatment, y = decrease, color = treatment)) +
+  geom_boxplot(outlier.colour = NA) +
+  geom_point(position = position_jitter(height = 0, width = 0.2), size = 2, alpha = 0.6) +
+  theme_classic() +
+  labs(x = "Treatment", y = "Decrease (%)") +
+  theme(legend.position = "none",
+        axis.title = element_text(size = 16),
+        axis.text = element_text(size = 14),
+        panel.grid.major.y = element_line())
+```
+
+
+Maybe we don't like having the tick marks on the x-axis. We can remove them by specifying the theme element `element_blank()`.
+```{r}
+ggplot(OrchardSprays, aes(x = treatment, y = decrease, color = treatment)) +
+  geom_boxplot(outlier.colour = NA) +
+  geom_point(position = position_jitter(height = 0, width = 0.2), size = 2, alpha = 0.6) +
+  theme_classic() +
+  labs(x = "Treatment", y = "Decrease (%)") +
+  theme(legend.position = "none",
+        axis.title = element_text(size = 16),
+        axis.text = element_text(size = 14),
+        panel.grid.major.y = element_line(),
+        axis.ticks.x = element_blank()
+        )
+```
+
+The last element not yet used is `element_rect()`. To demonstrate its use, we'll add a rectangle border around the body of the plot. Note, if `fill - NA` is not added, the inside of the rectangle will be filled with white, and the inside of the plot will no longer be visible.
+```{r}
+ggplot(OrchardSprays, aes(x = treatment, y = decrease, color = treatment)) +
+  geom_boxplot(outlier.colour = NA) +
+  geom_point(position = position_jitter(height = 0, width = 0.2), size = 2, alpha = 0.6) +
+  theme_classic() +
+  labs(x = "Treatment", y = "Decrease (%)") +
+  theme(legend.position = "none",
+        axis.title = element_text(size = 16),
+        axis.text = element_text(size = 14),
+        panel.grid.major.y = element_line(),
+        axis.ticks.x = element_blank(),
+        panel.border = element_rect(fill = NA),
+        )
+```
+Lastly, let's say I didn't like the default colors that ggplot uses. I can specify a different set of colors to use by declaring `scale_color_manual()` and providing a `values` parameter.
+```{r}
+ggplot(OrchardSprays, aes(x = treatment, y = decrease, color = treatment)) +
+  geom_boxplot(outlier.colour = NA) +
+  geom_point(position = position_jitter(height = 0, width = 0.2), size = 2, alpha = 0.6) +
+  theme_classic() +
+  labs(x = "Treatment", y = "Decrease (%)") +
+  theme(legend.position = "none",
+        axis.title = element_text(size = 16),
+        axis.text = element_text(size = 14),
+        panel.grid.major.y = element_line(),
+        axis.ticks.x = element_blank(),
+        panel.border = element_rect(fill = NA),
+        ) +
+  scale_color_manual(values = c("#e59c4a","#deba00","#277300","#01ac7b","#0154a0","#cea8da","#7659e1","#7c17bc"))
+```
+
