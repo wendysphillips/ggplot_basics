@@ -1,0 +1,57 @@
+---
+title: "ggplot2 scatterplots"
+author: "Wendy Phillips"
+date: "2023-09-10"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = "center")
+```
+
+# Scatterplots
+
+## WORK IN PROGRESS
+
+```{r, message=FALSE}
+library(tidyverse)
+library(ggExtra)
+library(carData)
+```
+
+
+```{r}
+data("Salaries")
+```
+
+```{r}
+str(Salaries)
+```
+
+Fix column names
+```{r}
+colnames(Salaries) <- gsub("\\.", "_", colnames(Salaries))
+```
+
+
+
+```{r}
+splot <- ggplot(Salaries, aes(y = salary, x = yrs_since_phd, color = sex)) +
+  geom_point(alpha = 0.65) +
+  theme_bw(base_size = 14) +
+  scale_color_manual(values = c("magenta", "blue"))
+
+splot
+```
+
+
+```{r}
+ggMarginal(splot, type = "histogram", groupColour = TRUE, groupFill = TRUE)
+```
+
+```{r}
+ggMarginal(splot, type = "boxplot", groupColour = TRUE, groupFill = TRUE)
+```
+```{r}
+ggMarginal(splot, type = "density", groupColour = TRUE)
+```
